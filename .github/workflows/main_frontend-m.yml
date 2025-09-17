@@ -13,19 +13,23 @@ jobs:
       contents: read
 
     steps:
+      # 1️⃣ Checkout repo
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
+      # 2️⃣ Set up Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18.x' # stable for Vite/React
+          node-version: '18.x'
 
+      # 3️⃣ Install dependencies and build
       - name: Install dependencies and build
         run: |
           npm install
           npm run build
 
+      # 4️⃣ Upload build artifact
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
@@ -40,22 +44,22 @@ jobs:
       contents: read
 
     steps:
+      # 1️⃣ Download build artifact
       - name: Download build artifact
         uses: actions/download-artifact@v4
         with:
           name: frontend-build
 
-      - name: Login to Azure
+      # 2️⃣ Login to Azure using Service Principal JSON
+      - name: Azure Login
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID }}
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
+      # 3️⃣ Deploy to Azure Web App
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
-          app-name: 'frontend-m'   # 👈 Your Azure Web App name
+          app-name: 'frontend-m'    # 👈 your Web App name
           slot-name: 'Production'
           package: .
-         
